@@ -6,6 +6,8 @@ import (
 	"net"
 	"os"
 	"strings"
+	"encoding/xml"
+	"encoding/json"
 )
 
 type HttpRequest struct {
@@ -37,9 +39,12 @@ const (
 
 func main() {
 	//The Program logic should go here.
+	var req HttPRequest
+	var res HttpResponse
+	var student []Student
 	reader := bufio.NewReader(os.Stdin)
 
-	req := HttpRequest{Version: "HTTP/1.1",
+	req = HttpRequest{Version: "HTTP/1.1",
 						Method: "GET"}
 
 	fmt.Print("input the url: ")
@@ -67,16 +72,18 @@ func main() {
 
 	conn, err := net.DialTCP(SERVER_TYPE, nil, tcpServer)
 
-	Fetch(req, conn)
+	res, student, req = Fetch(req, conn)
 	
 	defer conn.Close()
 
+	fmt.Println("Status Code: %s", res.StatusCode)
+	fmt.Println("Body: %s", res.Data)
 }
 
 func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpRequest) {
 	//This program handles the request-making to the server
 	var res HttpResponse
-	var Student []Student
+	var student []Student
 
 	string request = RequestEncoder(req)
 	_, err = conn.Write([]byte(request))
@@ -92,30 +99,39 @@ func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpR
 		os.Exit(1)
 	}
 
-	res = ResponseDecoder(buffer) 
+	res = ResponseDecoder(buffer)
+	
+	if res.ContentType == "application/json" {
+		// Unmarshal the JSON string into byte into &company struct to store parsed data
+		err := json.Unmarshal([]byte(res.Data), &student)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// Print array of values in the struct
+		// fmt.Printf("Student : %+v \n", student)
 
+	} else if res.ContentType == "application/xml" {
+		err := xml.Unmarshal([]byte(res.Data), &student)
+		if err != nil {
+			fmt.Printf("error: %v", err)
+			return
+		}
+	}
 
-	return res, Student, req
+	return res, student, req
 
 }
 
 func ResponseDecoder(bytestream []byte) HttpResponse {
 	var res HttpResponse
 
-	response := bytes.Split(bytestream, []byte("\r\n"))
-	statusLine := strings.SplitN(string(response[0]), " ", 2)
-	res.Version = string(statusLine[0])
-	res.StatusCode = string(statusLine[1])
-	res.ContentType = strings.Split(string(response[1]), " ")[1]
-	res.ContentLanguage = strings.Split(string(response[2]), " ")[1]
-
-	if res.ContentType == "application/json" {
-
-	} else if res.ContentType == "application/xml" {
-
-	} else if res.ContentType == "text/html" {
-		res.Data = strings.SplitN(string(response[3]), " ", 2)
-	}
+	response := strings.Split(string(bytestream), "\r\n")
+	statusLine := strings.SplitN(response[0], " ", 2)
+	res.Version = statusLine[0]
+	res.StatusCode = statusLine[1]
+	res.ContentType = strings.Split(response[1], " ")[1]
+	res.ContentLanguage = strings.Split(response[2], " ")[1]
+	res.Data = response[4]
 
 	return res
 
@@ -124,7 +140,7 @@ func ResponseDecoder(bytestream []byte) HttpResponse {
 func RequestEncoder(req HttpRequest) []byte {
 	var result string
 
-	result = fmt.Sprintf("%s %s %s\r\nHost: %s\r\nAccept: %s\r\nAccept-Language: %s",
+	result = fmt.Sprintf("%s %s %s\r\nHost: %s\r\nAccept: %s\r\nAccept-Language: %s\r\n\r\n",
 			HttpRequest.Method, HttpRequest.Uri, HttpRequest.Version, HttpRequest.Host, HttpRequest.Accept, HttpRequest.AcceptLanguange)
 
 	return []byte(result)
