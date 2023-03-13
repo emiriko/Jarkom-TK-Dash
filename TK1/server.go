@@ -96,17 +96,47 @@ func HandleConnection(connection net.Conn) {
 func HandleRequest(req HttpRequest) HttpResponse {
 	//This program handles the routing to each view handler.
 	var res HttpResponse
-	const paramater = strings.Split(req.Uri, "")
+
 	// handle the request based on its URI and method
 	switch req.Uri {
-	case "/":
+	case "/", fmt.Sprintf("/?name=%s", GROUP_NAME):
 		if req.Method == "GET" {
 			// handle GET request for the root URI
 			res.Version = "HTTP/1.1"
 			res.StatusCode = "200 OK"
+			res.ContentType = "text/html"
+			res.ContentLanguage = "id-ID"
+			res.Data = fmt.Sprintf("<html><body><h1>Halo, kami dari %s</h1></body></html>", GROUP_NAME)
+		} else {
+			// handle unsupported method for the root URI
+			res.Version = "HTTP/1.1"
+			res.StatusCode = "405 Method Not Allowed"
 			res.ContentType = "text/plain"
 			res.ContentLanguage = "en-US"
-			res.Data = "Hello, World!"
+			res.Data = "Method not allowed"
+		}
+	case "/greeting":
+		if req.Method == "GET" {
+			switch req.AcceptLanguange {
+			case "en-US":
+				res.Version = "HTTP/1.1"
+				res.StatusCode = "200 OK"
+				res.ContentType = "text/html"
+				res.ContentLanguage = req.AcceptLanguange
+				res.Data = fmt.Sprintf("<html><body><h1>Hello, we are from %s</h1></body></html>", GROUP_NAME)
+			case "id-ID":
+				res.Version = "HTTP/1.1"
+				res.StatusCode = "200 OK"
+				res.ContentType = "text/html"
+				res.ContentLanguage = req.AcceptLanguange
+				res.Data = fmt.Sprintf("<html><body><h1>Halo, kami dari %s</h1></body></html>", GROUP_NAME)
+			default:
+				res.Version = "HTTP/1.1"
+				res.StatusCode = "200 OK"
+				res.ContentType = "text/html"
+				res.ContentLanguage = "en-US"
+				res.Data = fmt.Sprintf("<html><body><h1>Hello, we are from %s</h1></body></html>", GROUP_NAME)
+			}
 		} else {
 			// handle unsupported method for the root URI
 			res.Version = "HTTP/1.1"
