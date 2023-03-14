@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"net"
 	"strings"
@@ -96,6 +98,23 @@ func HandleConnection(connection net.Conn) {
 func HandleRequest(req HttpRequest) HttpResponse {
 	//This program handles the routing to each view handler.
 	var res HttpResponse
+	student := []Student{
+		{Nama: "Sasha Nabila Fortuna", Npm: "2106632226"},
+		{Nama: "Dianisa Wulandari", Npm: "2106702150"},
+		{Nama: "Alvaro Austin", Npm: "2106752180"},
+	}
+
+	jsonData, err := json.Marshal(student)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	xmlData, err := xml.Marshal(student)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	// handle the request based on its URI and method
 	switch req.Uri {
@@ -104,7 +123,7 @@ func HandleRequest(req HttpRequest) HttpResponse {
 			// handle GET request for the root URI
 			res.Version = "HTTP/1.1"
 			res.StatusCode = "200 OK"
-			res.ContentType = "text/html"
+			res.ContentType = req.Accept
 			res.ContentLanguage = "id-ID"
 			res.Data = fmt.Sprintf("<html><body><h1>Halo, kami dari %s</h1></body></html>", GROUP_NAME)
 		} else {
@@ -145,13 +164,43 @@ func HandleRequest(req HttpRequest) HttpResponse {
 			res.ContentLanguage = "en-US"
 			res.Data = "Method not allowed"
 		}
+	case "/data":
+		if req.Method == "GET" {
+			switch req.Accept {
+			case "application/json":
+				res.Version = "HTTP/1.1"
+				res.StatusCode = "200 OK"
+				res.ContentType = req.Accept
+				res.ContentLanguage = "en-US"
+				res.Data = string(jsonData)
+			case "application/xml":
+				res.Version = "HTTP/1.1"
+				res.StatusCode = "200 OK"
+				res.ContentType = req.Accept
+				res.ContentLanguage = "en-US"
+				res.Data = string(xmlData)
+			default:
+				res.Version = "HTTP/1.1"
+				res.StatusCode = "200 OK"
+				res.ContentType = "application/json"
+				res.ContentLanguage = "en-US"
+				res.Data = string(jsonData)
+			}
+		} else {
+			// handle unsupported method for the root URI
+			res.Version = "HTTP/1.1"
+			res.StatusCode = "405 Method Not Allowed"
+			res.ContentType = "text/plain"
+			res.ContentLanguage = "en-US"
+			res.Data = "Method not allowed"
+		}
 	default:
 		// handle unknown URI
 		res.Version = "HTTP/1.1"
 		res.StatusCode = "404 Not Found"
 		res.ContentType = "text/plain"
 		res.ContentLanguage = "en-US"
-		res.Data = "Page not found"
+		res.Data = ""
 	}
 
 	return res
