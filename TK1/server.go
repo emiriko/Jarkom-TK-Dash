@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 )
 
@@ -91,7 +92,14 @@ func HandleConnection(connection net.Conn) {
 
 	res := HandleRequest(req)
 
-	go ResponseEncoder(res)
+	result := ResponseEncoder(res)
+
+	_, err = connection.Write([]byte(result))
+
+	if err != nil {
+		fmt.Println("Error message:", err.Error())
+		os.Exit(1)
+	}
 
 	defer connection.Close()
 }
