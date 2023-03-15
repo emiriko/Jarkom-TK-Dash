@@ -59,7 +59,7 @@ func main() {
 	}
 
 	urlSplit := strings.Split(url, "/")
-	req.Uri = "/" + strings.Join(urlSplit[3:], "/")
+	req.Uri = "/" + strings.TrimSpace(strings.Join(urlSplit[3:], "/"))
 	req.Host = urlSplit[2]
 
 	fmt.Print("input the data type: ")
