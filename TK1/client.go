@@ -41,8 +41,10 @@ func main() {
 	//The Program logic should go here.
 	var req HttpRequest
 	var res HttpResponse
-
-	var student []Student
+	// var student []Student
+	// var student = []Student{
+	// 	{Nama: "Halo", Npm: "210675234"},
+	// }
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -74,14 +76,9 @@ func main() {
 
 	conn, err := net.DialTCP(SERVER_TYPE, nil, tcpServer)
 
-	res, student, req = Fetch(req, conn)
+	res, _, req = Fetch(req, conn)
 
 	defer conn.Close()
-
-	if res.ContentType == "application/json" || res.ContentType == "application/xml" {
-		fmt.Println("Status Code: %s", res.StatusCode)
-		fmt.Println("Body: %s", student)
-	}
 	fmt.Println("Status Code: %s", res.StatusCode)
 	fmt.Println("Body: %s", res.Data)
 }
@@ -107,6 +104,7 @@ func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpR
 	}
 
 	res = ResponseDecoder(buffer[:bufLen])
+	student = []Student{}
 
 	if res.ContentType == "application/json" {
 		// Unmarshal the JSON string into byte into &company struct to store parsed data
