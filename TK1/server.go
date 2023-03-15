@@ -77,7 +77,7 @@ func HandleConnection(connection net.Conn) {
 	//This progrom handles the incoming request from client
 	defer connection.Close()
 
-	buffer := make([]byte, 1024)
+	buffer := make([]byte, BUFFER_SIZE)
 
 	n, err := connection.Read(buffer)
 

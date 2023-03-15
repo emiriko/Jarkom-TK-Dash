@@ -68,7 +68,7 @@ func main() {
 	fmt.Print("input the language: ")
 	req.AcceptLanguange, err = reader.ReadString('\n')
 
-	tcpServer, err := net.ResolveTCPAddr(SERVER_TYPE, req.Host+req.Uri)
+	tcpServer, err := net.ResolveTCPAddr(SERVER_TYPE, req.Host)
 	if err != nil {
 		fmt.Println("Resolve TCPAddr failed:", err.Error())
 		os.Exit(1)
