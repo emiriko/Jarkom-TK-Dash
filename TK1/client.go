@@ -75,7 +75,7 @@ func main() {
 	res, _, req = Fetch(req, conn)
 
 	defer conn.Close()
-	fmt.Println("Status Code: ", res.StatusCode)
+	fmt.Println("Status Code: ", (strings.SplitN(res.StatusCode, " ", 2))[0])
 	fmt.Println("Body: ", res.Data)
 }
 
@@ -124,7 +124,7 @@ func ResponseDecoder(bytestream []byte) HttpResponse {
 	var res HttpResponse
 
 	response := strings.Split(string(bytestream), "\r\n")
-	statusLine := strings.SplitN(response[0], " ", 3)
+	statusLine := strings.SplitN(response[0], " ", 2)
 	res.Version = statusLine[0]
 	res.StatusCode = statusLine[1]
 	res.ContentType = strings.Split(response[1], " ")[1]
