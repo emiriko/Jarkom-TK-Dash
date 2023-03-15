@@ -1,4 +1,4 @@
-//package main
+package main
 
 import (
 	"bufio"
@@ -39,9 +39,9 @@ const (
 
 func main() {
 	//The Program logic should go here.
-	var req HttPRequest
+	var req HttpRequest
 	var res HttpResponse
-	var student []Student
+	// var student []Student
 	reader := bufio.NewReader(os.Stdin)
 
 	req = HttpRequest{Version: "HTTP/1.1",
@@ -72,7 +72,7 @@ func main() {
 
 	conn, err := net.DialTCP(SERVER_TYPE, nil, tcpServer)
 
-	res, student, req = Fetch(req, conn)
+	res, student, req := Fetch(req, conn)
 	
 	defer conn.Close()
 
@@ -85,21 +85,21 @@ func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpR
 	var res HttpResponse
 	var student []Student
 
-	string request = RequestEncoder(req)
-	_, err = conn.Write([]byte(request))
+	request := RequestEncoder(req)
+	_, err := connection.Write([]byte(request))
 	if err != nil {
 		fmt.Println("Error message:", err.Error())
 		os.Exit(1)
 	}
 
 	buffer := make([]byte, BUFFER_SIZE)
-	bufLen, err := conn.Read(buffer)
+	bufLen, err := connection.Read(buffer)
 	if err != nil {
 		fmt.Println("Error message:", err.Error())
 		os.Exit(1)
 	}
 
-	res = ResponseDecoder(buffer)
+	res = ResponseDecoder(buffer[:bufLen])
 	
 	if res.ContentType == "application/json" {
 		// Unmarshal the JSON string into byte into &company struct to store parsed data
@@ -114,7 +114,6 @@ func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpR
 		err := xml.Unmarshal([]byte(res.Data), &student)
 		if err != nil {
 			fmt.Printf("error: %v", err)
-			return
 		}
 	}
 
@@ -141,7 +140,7 @@ func RequestEncoder(req HttpRequest) []byte {
 	var result string
 
 	result = fmt.Sprintf("%s %s %s\r\nHost: %s\r\nAccept: %s\r\nAccept-Language: %s\r\n\r\n",
-			HttpRequest.Method, HttpRequest.Uri, HttpRequest.Version, HttpRequest.Host, HttpRequest.Accept, HttpRequest.AcceptLanguange)
+			req.Method, req.Uri, req.Version, req.Host, req.Accept, req.AcceptLanguange)
 
 	return []byte(result)
 
