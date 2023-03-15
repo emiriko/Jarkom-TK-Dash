@@ -93,6 +93,7 @@ func HandleConnection(connection net.Conn) {
 
 	go ResponseEncoder(res)
 
+	defer connection.Close()
 }
 
 func HandleRequest(req HttpRequest) HttpResponse {
