@@ -124,7 +124,7 @@ func ResponseDecoder(bytestream []byte) HttpResponse {
 	var res HttpResponse
 
 	response := strings.Split(string(bytestream), "\r\n")
-	statusLine := strings.SplitN(response[0], " ", 2)
+	statusLine := strings.SplitN(response[0], " ", 3)
 	res.Version = statusLine[0]
 	res.StatusCode = statusLine[1]
 	res.ContentType = strings.Split(response[1], " ")[1]
