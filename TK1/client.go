@@ -41,10 +41,6 @@ func main() {
 	//The Program logic should go here.
 	var req HttpRequest
 	var res HttpResponse
-	// var student []Student
-	// var student = []Student{
-	// 	{Nama: "Halo", Npm: "210675234"},
-	// }
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -79,8 +75,8 @@ func main() {
 	res, _, req = Fetch(req, conn)
 
 	defer conn.Close()
-	fmt.Println("Status Code: %s", res.StatusCode)
-	fmt.Println("Body: %s", res.Data)
+	fmt.Println("Status Code: ", res.StatusCode)
+	fmt.Println("Body: ", res.Data)
 }
 
 func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpRequest) {
@@ -112,8 +108,6 @@ func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpR
 		if err != nil {
 			fmt.Println(err)
 		}
-		// Print array of values in the struct
-		// fmt.Printf("Student : %+v \n", student)
 
 	} else if res.ContentType == "application/xml" {
 		err := xml.Unmarshal([]byte(res.Data), &student)
