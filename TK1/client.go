@@ -78,6 +78,10 @@ func main() {
 
 	defer conn.Close()
 
+	if res.ContentType == "application/json" || res.ContentType == "application/xml" {
+		fmt.Println("Status Code: %s", res.StatusCode)
+		fmt.Println("Body: %s", student)
+	}
 	fmt.Println("Status Code: %s", res.StatusCode)
 	fmt.Println("Body: %s", res.Data)
 }
