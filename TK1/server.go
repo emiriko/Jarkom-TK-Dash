@@ -42,9 +42,6 @@ type Student struct {
 func main() {
 	//The Program logic should go here.
 
-	// btw gw td coba cari ide di chat gpt wkwkwk, itu idea nya ada di file serverIdeaFromChatGPT.go
-	// okay
-
 	listen, err := net.Listen(SERVER_TYPE, SERVER_HOST+":"+SERVER_PORT)
 
 	if err != nil {
@@ -61,17 +58,6 @@ func main() {
 		}
 		go HandleConnection(conn)
 	}
-	// if len(os.Args) != 2 {
-	//     fmt.Fprintf(os.Stderr, "Usage: %s ip-addr\n", os.Args[0])
-	//     os.Exit(1)
-	// }
-	// service := os.Args[1]
-	// tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
-
-	// if(err != nil) {
-	// 	// error handling here
-	// }
-
 }
 
 func HandleConnection(connection net.Conn) {
@@ -85,8 +71,6 @@ func HandleConnection(connection net.Conn) {
 	if err != nil {
 		fmt.Println("Error, reading request: ", err.Error())
 	}
-
-	// request := string(buffer[:n])
 
 	req := RequestDecoder(buffer[:n])
 
@@ -218,10 +202,6 @@ func HandleRequest(req HttpRequest) HttpResponse {
 
 func RequestDecoder(bytestream []byte) HttpRequest {
 	//Put the decoding program for HTTP Request Packet here
-
-	// you can use the bufio package to read the message data from the connection
-	// parse the message into its components
-	// and then create an HTTPRequest structure from those components.
 	var req HttpRequest
 
 	// split the request into lines
@@ -274,40 +254,3 @@ func ResponseEncoder(res HttpResponse) []byte {
 	return []byte(result)
 
 }
-
-/**
-contoh HandleRequest yg gw dpt td
-
-func HandleRequest(req HttpRequest) HttpResponse {
-    var res HttpResponse
-
-    // handle the request based on its URI and method
-    switch req.Uri {
-    case "/":
-        if req.Method == "GET" {
-            // handle GET request for the root URI
-            res.Version = "HTTP/1.1"
-            res.StatusCode = "200 OK"
-            res.ContentType = "text/plain"
-            res.ContentLanguage = "en-US"
-            res.Data = "Hello, World!"
-        } else {
-            // handle unsupported method for the root URI
-            res.Version = "HTTP/1.1"
-            res.StatusCode = "405 Method Not Allowed"
-            res.ContentType = "text/plain"
-            res.ContentLanguage = "en-US"
-            res.Data = "Method not allowed"
-        }
-    default:
-        // handle unknown URI
-        res.Version = "HTTP/1.1"
-        res.StatusCode = "404 Not Found"
-        res.ContentType = "text/plain"
-        res.ContentLanguage = "en-US"
-        res.Data = "Page not found"
-    }
-
-    return res
-}
-**/

@@ -42,6 +42,7 @@ func main() {
 	var req HttpRequest
 	var res HttpResponse
 
+	// create reader and read user input
 	reader := bufio.NewReader(os.Stdin)
 
 	req = HttpRequest{Version: "HTTP/1.1",
@@ -64,6 +65,7 @@ func main() {
 	fmt.Print("input the language: ")
 	req.AcceptLanguange, err = reader.ReadString('\n')
 
+	// create tcp connection
 	tcpServer, err := net.ResolveTCPAddr(SERVER_TYPE, req.Host)
 	if err != nil {
 		fmt.Println("Resolve TCPAddr failed:", err.Error())
@@ -72,11 +74,13 @@ func main() {
 
 	conn, err := net.DialTCP(SERVER_TYPE, nil, tcpServer)
 
+	// make request
 	res, _, req = Fetch(req, conn)
 
+	// close connection and print response
 	defer conn.Close()
-	fmt.Println("Status Code: ", (strings.SplitN(res.StatusCode, " ", 2))[0])
-	fmt.Println("Body: ", res.Data)
+	fmt.Println("Status Code: ", strings.TrimSpace((strings.SplitN(res.StatusCode, " ", 2))[0]))
+	fmt.Println("Body: ", strings.TrimSpace(res.Data))
 }
 
 func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpRequest) {
@@ -84,6 +88,7 @@ func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpR
 	var res HttpResponse
 	var student []Student
 
+	// encode and send request to server
 	request := RequestEncoder(req)
 	_, err := connection.Write([]byte(request))
 
@@ -92,6 +97,7 @@ func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpR
 		os.Exit(1)
 	}
 
+	// read server response
 	buffer := make([]byte, BUFFER_SIZE)
 	bufLen, err := connection.Read(buffer)
 	if err != nil {
@@ -99,11 +105,12 @@ func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpR
 		os.Exit(1)
 	}
 
+	// decode response
 	res = ResponseDecoder(buffer[:bufLen])
 	student = []Student{}
 
 	if res.ContentType == "application/json" {
-		// Unmarshal the JSON string into byte into &company struct to store parsed data
+		// Unmarshal data into byte into &student struct to store parsed data
 		err := json.Unmarshal([]byte(res.Data), &student)
 		if err != nil {
 			fmt.Println(err)
