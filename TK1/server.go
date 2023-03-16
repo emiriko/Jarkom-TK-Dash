@@ -116,7 +116,7 @@ func HandleRequest(req HttpRequest) HttpResponse {
 			// handle GET request for the root URI
 			res.Version = "HTTP/1.1"
 			res.StatusCode = "200 OK"
-			res.ContentType = req.Accept
+			res.ContentType = "text/html"
 			res.ContentLanguage = "id-ID"
 			res.Data = fmt.Sprintf("<html><body><h1>Halo, kami dari %s</h1></body></html>", GROUP_NAME)
 		} else {
