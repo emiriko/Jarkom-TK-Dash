@@ -79,8 +79,8 @@ func main() {
 
 	// close connection and print response
 	defer conn.Close()
-	fmt.Println("Status Code: ", strings.TrimSpace((strings.SplitN(res.StatusCode, " ", 2))[0]))
-	fmt.Println("Body: ", strings.TrimSpace(res.Data))
+	fmt.Println("Status Code: " + (strings.SplitN(res.StatusCode, " ", 2))[0])
+	fmt.Println("Body: " + res.Data)
 }
 
 func Fetch(req HttpRequest, connection net.Conn) (HttpResponse, []Student, HttpRequest) {
